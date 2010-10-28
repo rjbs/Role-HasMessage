@@ -1,6 +1,6 @@
-package Throwable::X::WithMessage::Errf;
+package Role::HasMessage::Errf;
 use MooseX::Role::Parameterized;
-# ABSTRACT: an exception with a String::Errf-powered message
+# ABSTRACT: a thing with a String::Errf-powered message
 
 =head1 SYNOPSIS
 
@@ -9,7 +9,7 @@ In your class...
   package Errfy;
   use Moose;
 
-  with 'Throwable::X::WithMessage::Errf';
+  with 'Role::HasMessage::Errf';
 
   has payload => (
     is  => 'ro',
@@ -32,21 +32,19 @@ Then...
 
 =head1 DESCRIPTION
 
-Throwable::X::WithMessage::Errf is an implementation of
-L<Throwable::X::WithMessage> that uses L<String::Errf> to format
-C<sprintf>-like message strings.  It adds a C<message_fmt> attribute,
-initialized by the C<message> argument.  The value should be a String::Errf
-format string.
+Role::HasMessage::Errf is an implementation of L<Role::HasMessage> that uses
+L<String::Errf> to format C<sprintf>-like message strings.  It adds a
+C<message_fmt> attribute, initialized by the C<message> argument.  The value
+should be a String::Errf format string.
 
 When the provided C<message> method is called, it will fill in the format
 string with the hashref returned by calling the C<payload> method, which I<must
 be implemented by the including class>.
 
-Throwable::X::WithMessage::Errf is a L<parameterized
-role|MooseX::Role::Parameterized>.  The C<default> parameter lets you set a
-default format string or callback.  The C<lazy> parameter sets whether or not
-the C<message_fmt> attribute is lazy.  Setting it lazy will require that a
-default is provided.
+Role::HasMessage::Errf is a L<parameterized role|MooseX::Role::Parameterized>.
+The C<default> parameter lets you set a default format string or callback.  The
+C<lazy> parameter sets whether or not the C<message_fmt> attribute is lazy.
+Setting it lazy will require that a default is provided.
 
 =cut
 
@@ -67,14 +65,12 @@ parameter lazy => (
 role {
   my $p = shift;
 
-  with 'Throwable::X::WithMessage';
-
   requires 'payload';
 
   my $msg_default = $p->default;
   has message_fmt => (
     is   => 'ro',
-    isa  => 'Throwable::X::_VisibleStr',
+    isa  => 'Str',
     lazy => $p->lazy,
     required => 1,
     init_arg => 'message',
@@ -100,6 +96,8 @@ role {
       sprintf '%s (error during formatting)', $self->message_fmt;
     }
   };
+
+  with 'Role::HasMessage';
 };
 
 1;
